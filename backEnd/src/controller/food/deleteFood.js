@@ -1,7 +1,7 @@
 import { Food } from "../../model/food.js";
 
 export const deleteFood = async (req, res) => {
-  console.log(req.body);
+  console.log("delete req body", req.body);
   const { id } = req.body;
   try {
     const food = await Food.findByIdAndDelete(id);

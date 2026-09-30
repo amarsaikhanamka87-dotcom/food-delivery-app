@@ -11,4 +11,4 @@ export const FoodCategoryRouter = Router();
 FoodCategoryRouter.get("/", getCategories)
   .post("/", createCategories)
   .put("/", requireToken, requireAdmin, updateCategories)
-  .delete("/", requireToken, requireAdmin, deleteCategories);
+  .delete("/", deleteCategories);
