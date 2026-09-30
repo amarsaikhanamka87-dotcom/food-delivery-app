@@ -14,17 +14,17 @@ import { server } from "../api/api";
 import { Plus } from "../_icons/plus-icon";
 import { FoodCard } from "../admin/_components/food-card";
 import { PostFood } from "../admin/_components/postFood";
+import { XIcon } from "lucide-react";
 
 export const DishesCategory = () => {
   const [category, setCategory] = useState([]);
-  const [categoryValue, setCategoryValue] = useState();
-  const [open, setOpen] = useState(false);
+  const [categoryValue, setCategoryValue] = useState("");
+  const [activeId, setActiveId] = useState(null);
 
   const [selectedCategoty, setSelectedCategoty] = useState();
-  const [clicked, setClicked] = useState(false);
+  const [open, setOpen] = useState(false);
 
   //post
-
   const addCategory = async () => {
     try {
       const resCategory = await server.post("/foodCategory", {
@@ -39,7 +39,6 @@ export const DishesCategory = () => {
   };
 
   //get
-
   const getCategories = async () => {
     try {
       const resGet = await server.get("foodCategory", {});
@@ -50,18 +49,28 @@ export const DishesCategory = () => {
   };
 
   const handleCategory = async (id) => {
-    console.log("handle Category clicked", id);
-
     try {
       const response = await server.get(`food/${id}`, {});
-
       setSelectedCategoty(response.data.foods);
-      clicked(true);
+      setActiveId(id);
     } catch (err) {
       console.log("error", err);
     }
   };
   console.log("selectedCategory", selectedCategoty);
+
+  const deleteCategory = async (id) => {
+    try {
+      await server.delete("/foodCategory", { data: { id } });
+      if (activeId === id) {
+        setActiveId(null);
+        setSelectedCategoty([]);
+      }
+      getCategories();
+    } catch (err) {
+      console.log("deleteCategory", err);
+    }
+  };
   useEffect(() => {
     getCategories();
   }, []);
@@ -74,13 +83,20 @@ export const DishesCategory = () => {
             Dishes Category
           </span>
           <div className="flex gap-2">
-            {clicked && setClicked(<div className="border-red-500"></div>)}
             {category?.map((item) => (
               <div
-                key={item.id}
-                className="border rounded-2xl p-2"
-                onClick={() => handleCategory(item._id)}
-              >
+                key={item._id}
+                className={`border rounded-2xl p-2 flex gap-2 cursor-pointer ${
+                  activeId === item._id ? "border-red-500" : "border-gray-200"
+                }`}
+                onClick={() => handleCategory(item._id)}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteCategory(item._id);
+                  }}>
+                  <XIcon />
+                </button>
                 {item.categoryName}
               </div>
             ))}
@@ -112,8 +128,7 @@ export const DishesCategory = () => {
 
               <button
                 onClick={addCategory}
-                className="mt-4 w-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-medium py-2.5 rounded-xl transition-colors duration-150"
-              >
+                className="mt-4 w-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-medium py-2.5 rounded-xl transition-colors duration-150">
                 Add category
               </button>
             </DialogContent>

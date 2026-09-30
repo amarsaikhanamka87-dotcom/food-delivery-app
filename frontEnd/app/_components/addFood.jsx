@@ -11,7 +11,7 @@ import {
 
 import { useEffect, useState } from "react";
 import { server } from "../api/api";
-import { Plus } from "../_icons/plus-icon";
+
 import { DeleteIcon } from "../_icons/delete-icon";
 import { PostFood } from "../admin/_components/postFood";
 import { FoodCard } from "../admin/_components/food-card";
@@ -22,7 +22,6 @@ export const AddFood = () => {
   const [category, setCategory] = useState({});
 
   // categoty
-
   const getCategories = async () => {
     try {
       const response = await server.get("/foodCategory", {});
@@ -31,8 +30,6 @@ export const AddFood = () => {
       console.log("error", err);
     }
   };
-
-  // post
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFood, setSelectedFood] = useState({});
@@ -51,34 +48,41 @@ export const AddFood = () => {
   const deleteFood = async (id) => {
     console.log("id", id);
     try {
-      const ResDeleteFood = await server.delete("/food", { data: { id } });
+      const ResDeleteFood = await server.delete("/food", {
+        data: { id },
+      });
       console.log("deleteFood", ResDeleteFood);
     } catch (err) {
       console.log("error", err);
     }
   };
 
-  const handleFoodClick = async (food) => {
-    setSelectedFood(food);
+  const handleFoodClick = (food) => {
+    setSelectedFood({
+      ...food,
+
+      foodCategory: food.foodCategory?._id ?? food.foodCategory ?? "",
+    });
     setIsOpen(true);
   };
-
-  console.log("categoty", category);
 
   // put
   const updateFood = async () => {
     try {
       const response = await server.put("/food", {
+        id: selectedFood.id,
         foodName: selectedFood.foodName,
         foodPrice: selectedFood.foodPrice,
         ingredients: selectedFood.ingredients,
-        foodCategory: selectedFood.category,
+        foodCategory: selectedFood.foodCategory,
       });
-      c;
+      setIsOpen(false);
     } catch (err) {
       console.log("error", err);
     }
   };
+
+  console.log("setSelectedFood", selectedFood);
 
   useEffect(() => {
     getFood();
@@ -86,7 +90,7 @@ export const AddFood = () => {
   }, []);
 
   return (
-    <div className=" ">
+    <div className="p-10  bg-gray-50">
       <div className="flex gap-5   bg-white border border-gray-200 shadow-md shadow-gray-300/50 rounded-3xl px-6 py-8 hover:shadow-lg transition-shadow">
         <div className="grid grid-cols-6 gap-5">
           <PostFood />
@@ -144,8 +148,7 @@ export const AddFood = () => {
 
             <button
               className="border rounded-2xl p-3 bg-black text-white"
-              onClick={updateFood}
-            >
+              onClick={updateFood}>
               Save changes
             </button>
           </div>
